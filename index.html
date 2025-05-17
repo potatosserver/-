@@ -85,18 +85,18 @@
         }
 
         .progress-bar {
-            /* 調整進度條狀態 */
+            /* 調整進度條狀態，變細 */
             width: 100%;
-            height: 2px; /* 原為 3px */
+            height: 2px;
             background: rgba(255, 255, 255, 0.3);
             cursor: pointer;
             position: relative;
-            padding: 1px 0; /* 原為 8px 0 */
-            margin: -1px 0; /* 原為 -8px 0 */
+            padding: 1px 0;
+            margin: -1px 0;
         }
 
         .progress-bar:hover {
-            height: 3px; /* 原 hover 為 5px */
+            height: 2px;
         }
 
         .progress {
@@ -215,14 +215,17 @@
             gap: 16px;
         }
 
+        /* 修改：設定選單樣式模仿 YouTube */
         .settings-menu {
             position: absolute;
             right: 48px;
             bottom: 60px;
-            background: rgba(28, 28, 28, 0.9);
+            width: 150px; /* 固定寬度 */
+            background: #212121;  /* 與 YouTube 類似的暗色背景 */
             border-radius: 4px;
             padding: 8px 0;
             display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .settings-menu.active {
@@ -236,6 +239,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
         }
 
         .settings-item:hover {
@@ -243,27 +247,23 @@
         }
 
         .settings-submenu {
-            position: absolute;
-            right: 100%;
-            top: 0;
-            background: rgba(28, 28, 28, 0.9);
-            border-radius: 4px;
-            padding: 8px 0;
             display: none;
-            width: 200px;
+            background: #212121;
+            border-top: 1px solid #383838;
         }
 
         .settings-item.active .settings-submenu {
             display: block;
         }
 
-        .speed-option, .quality-option {
+        .speed-option {
             padding: 8px 16px;
             color: white;
             cursor: pointer;
         }
 
-        .speed-option.active, .quality-option.active {
+        .speed-option:hover,
+        .speed-option.active {
             background: rgba(255, 255, 255, 0.1);
         }
 
@@ -291,6 +291,14 @@
 
         .control-button .material-icons {
             font-size: 28px;
+        }
+
+        /* 新增：設定按鈕旋轉效果 */
+        .control-button.settings {
+            transition: transform 0.3s ease;
+        }
+        .control-button.settings.rotated {
+            transform: rotate(60deg);
         }
 
         .time-display {
@@ -330,6 +338,119 @@
           -ms-user-select: none;
           user-select: none;
         }
+
+        /* 新增縮圖預覽的樣式 */
+        .thumbnail-preview {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 90px;
+            background: #000;
+            border: 1px solid #fff;
+            display: none;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        /* 新增 canvas 規則，讓其填滿容器 */
+        .thumbnail-preview canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .thumbnail-preview .preview-time {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* 新增：播放/暫停動畫效果，模仿 YouTube */
+@keyframes ytPlayPause {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }  /* 更新至較大 scale 值 */
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.material-icons.animate {
+  animation: ytPlayPause 0.3s ease;
+}
+
+/* 新增：播放/暫停動畫 overlay */
+.play-pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 150px;  /* 修改: 從 100px 調整為 150px */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.play-pause-overlay .material-icons {
+    font-size: 60px !important;
+}
+
+.video-wrapper.paused .play-pause-overlay {
+    opacity: 1;
+}
+.settings-item[data-menu="speed"].active > .menu-label {
+    display: none;
+}
+        /* 新增：當設定選單被開啟時保持控制列顯示 */
+        .video-wrapper.active-settings .custom-controls {
+            opacity: 1 !important;
+        }
+
+        /* 新增：速度選單返回按鈕樣式 */
+        .speed-back {
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            border-bottom: 1px solid #383838;
+        }
+        .speed-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 新增：速度選單 header 樣式 */
+        .settings-submenu.speed-menu {
+            transition: transform 0.3s ease;
+            transform: translateX(0);
+        }
+        .speed-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid #383838;
+        }
+        .speed-back {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .speed-title {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            color: white;
+        }
+        .speed-options {
+            /* 原有速度選項區域，可依需求調整 */
+        }
+        .settings-submenu.speed-menu.back {
+            transform: translateX(-100%);
+        }
     </style>
 </head>
 <body>
@@ -341,13 +462,22 @@
     </header>
     <div class="video-container">
         <div class="video-wrapper">
-            <video>
+            <video autoplay muted>
                 <source src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
                 您的瀏覽器不支援 HTML5 影片播放。
             </video>
+            <!-- 新增：播放/暫停動畫 overlay -->
+            <div class="play-pause-overlay">
+                <span class="material-icons"></span>
+            </div>
             <div class="custom-controls">
                 <div class="progress-bar">
                     <div class="progress"></div>
+                    <!-- 修改區：在縮圖預覽區內加入 canvas 元素，保留預覽時間 -->
+                    <div class="thumbnail-preview">
+                        <canvas width="160" height="90"></canvas>
+                        <span class="preview-time"></span>
+                    </div>
                 </div>
                 <div class="controls-row">
                     <div class="controls-left">
@@ -372,14 +502,26 @@
                     <div class="controls-right">
                         <div class="settings-menu">
                             <div class="settings-item" data-menu="speed">
-                                <span class="material-icons">speed</span>
-                                播放速度
+                                <span class="menu-label">
+                                    <span class="material-icons">slow_motion_video</span>
+                                    播放速度
+                                </span>
+                                <!-- 修改：插入速度選單 header 並移動返回按鈕 -->
                                 <div class="settings-submenu speed-menu">
-                                    <div class="speed-option" data-speed="0.25">0.25x</div>
-                                    <div class="speed-option" data-speed="0.5">0.5x</div>
-                                    <div class="speed-option" data-speed="1" class="active">正常</div>
-                                    <div class="speed-option" data-speed="1.5">1.5x</div>
-                                    <div class="speed-option" data-speed="2">2x</div>
+                                    <div class="speed-header">
+                                        <div class="speed-back"><</div>
+                                        <div class="speed-title">播放速度</div>
+                                    </div>
+                                    <div class="speed-options">
+                                        <div class="speed-option" data-speed="0.25">0.25x</div>
+                                        <div class="speed-option" data-speed="0.5">0.5x</div>
+                                        <div class="speed-option" data-speed="0.75">0.75x</div>
+                                        <div class="speed-option active" data-speed="1">正常</div>
+                                        <div class="speed-option" data-speed="1.25">1.25x</div>
+                                        <div class="speed-option" data-speed="1.5">1.5x</div>
+                                        <div class="speed-option" data-speed="2">2x</div>
+                                        <div class="speed-option" data-speed="2.5">2.5x</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -397,6 +539,8 @@
             <div class="video-title">專題製作成果展示</div>
         </div>
     </div>
+    <!-- 新增：隱藏的影片元素，用於生成預覽縮圖 -->
+    <video id="preview-video" src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" preload="metadata" muted style="display: none;"></video>
     <script>
         const video = document.querySelector('video');
         const playPauseBtn = document.querySelector('.play-pause');
@@ -410,8 +554,16 @@
         const volumeSlider = document.querySelector('.volume-slider');
         const settingsBtn = document.querySelector('.settings');
         const settingsMenu = document.querySelector('.settings-menu');
+        const videoWrapper = document.querySelector('.video-wrapper');
+        // 新增預覽影片與 canvas 相關變數
+        const previewVideo = document.getElementById('preview-video');
+        const thumbnailPreview = document.querySelector('.thumbnail-preview');
+        const thumbnailCanvas = thumbnailPreview.querySelector('canvas');
+        const previewTimeSpan = thumbnailPreview.querySelector('.preview-time');
+        let requestedPreviewTime = 0;
 
         playPauseBtn.addEventListener('click', togglePlay);
+        video.addEventListener('click', togglePlay);
         video.addEventListener('timeupdate', updateProgress);
         progressBar.addEventListener('click', seek);
         fullscreenBtn.addEventListener('click', toggleFullscreen);
@@ -425,18 +577,40 @@
             updateVolumeIcon(value);
         });
         settingsBtn.addEventListener('click', () => {
-            settingsMenu.classList.toggle('active');
+            const isActive = settingsMenu.classList.toggle('active');
             volumeControl.classList.remove('active');
+            if (isActive) {
+                videoWrapper.classList.add('active-settings');
+            } else {
+                videoWrapper.classList.remove('active-settings');
+            }
+            // 新增：切換設定按鈕的旋轉狀態
+            settingsBtn.classList.toggle('rotated');
+        });
+        video.addEventListener('play', () => {
+            playPauseBtn.querySelector('.material-icons').textContent = 'pause';
+            showOverlay('play');
+        });
+        video.addEventListener('pause', () => {
+            playPauseBtn.querySelector('.material-icons').textContent = 'play_arrow';
+            showOverlay('pause');
         });
 
         function togglePlay() {
             if (video.paused) {
                 video.play();
                 playPauseBtn.querySelector('.material-icons').textContent = 'pause';
+                showOverlay('pause'); // 顯示暫停播放動畫 (目前影片播放中，應顯示 pause icon)
             } else {
                 video.pause();
                 playPauseBtn.querySelector('.material-icons').textContent = 'play_arrow';
+                showOverlay('play'); // 顯示播放動畫 (目前影片已暫停，應顯示 play icon)
             }
+            // 強制重新觸發動畫
+            playPauseBtn.querySelector('.material-icons').classList.add('animate');
+            setTimeout(() => {
+                playPauseBtn.querySelector('.material-icons').classList.remove('animate');
+            }, 300);
         }
 
         function updateProgress() {
@@ -517,8 +691,10 @@
 
         // 點擊外部關閉選單
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.settings-menu')) {
+            if (!e.target.closest('.settings-menu') && !e.target.closest('.control-button.settings')) {
+                settingsMenu.classList.remove('active');
                 settingsItems.forEach(item => item.classList.remove('active'));
+                videoWrapper.classList.remove('active-settings');
             }
             if (!e.target.closest('.controls-left')) {
                 volumeControl.classList.remove('active');
@@ -528,9 +704,7 @@
             }
         });
 
-        // 原先取得 volumeSliderLabel 並監聽 mousedown 事件的部分已移除
-        // const volumeSliderLabel = document.querySelector('.volume-slider-label');
-
+        // 調整音量滑桿控制邏輯
         let draggingVolume = false;
         let volumeRect = null;
 
@@ -559,6 +733,61 @@
             video.volume = newVal / 100;
             updateVolumeIcon(newVal);
         }
+
+        // 新增：時間滑桿縮圖預覽功能 - 動態生成縮圖
+        progressBar.addEventListener('mousemove', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const ratio = Math.max(0, Math.min(1, offsetX / rect.width));
+            const previewTime = ratio * video.duration;
+            // 更新縮圖預覽的位置與顯示
+            thumbnailPreview.style.left = `${offsetX}px`;
+            thumbnailPreview.style.display = 'block';
+            previewTimeSpan.textContent = formatTime(previewTime);
+            // 記錄要求的預覽時間並設定 preview-video 當前時間
+            requestedPreviewTime = previewTime;
+            previewVideo.currentTime = previewTime;
+        });
+
+        progressBar.addEventListener('mouseenter', () => {
+            thumbnailPreview.style.display = 'block';
+        });
+
+        progressBar.addEventListener('mouseleave', () => {
+            thumbnailPreview.style.display = 'none';
+        });
+
+        // 當 preview-video 就緒後，將當前影像繪製到 canvas 上
+        previewVideo.addEventListener('seeked', () => {
+            // 確認影片已更新到要求的預覽時間
+            if (Math.abs(previewVideo.currentTime - requestedPreviewTime) < 0.1) {
+                const ctx = thumbnailCanvas.getContext('2d');
+                ctx.drawImage(previewVideo, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+            }
+        });
+
+        // 新增：顯示播放/暫停動畫的函式
+function showOverlay(action) {
+    const overlay = document.querySelector('.play-pause-overlay');
+    const icon = overlay.querySelector('.material-icons');
+    icon.textContent = action === 'play' ? 'play_arrow' : 'pause';
+    overlay.style.opacity = '1';
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+    }, 300);
+}
+
+        // 修改：速度選單返回按鈕加入返回動畫效果
+        const speedBackBtn = document.querySelector('.speed-back');
+        speedBackBtn.addEventListener('click', (e) => {
+            const speedSubmenu = speedBackBtn.closest('.settings-submenu.speed-menu');
+            speedSubmenu.classList.add('back');
+            setTimeout(() => {
+                const speedItem = speedBackBtn.closest('.settings-item');
+                speedItem.classList.remove('active');
+                speedSubmenu.classList.remove('back');
+            }, 300); // 與 CSS transition 時間同步
+        });
     </script>
 </body>
 </html>
