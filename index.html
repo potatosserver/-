@@ -85,17 +85,44 @@
         }
 
         .progress-bar {
+            /* 調整進度條狀態 */
             width: 100%;
-            height: 3px;
+            height: 2px; /* 原為 3px */
             background: rgba(255, 255, 255, 0.3);
             cursor: pointer;
             position: relative;
+            padding: 1px 0; /* 原為 8px 0 */
+            margin: -1px 0; /* 原為 -8px 0 */
+        }
+
+        .progress-bar:hover {
+            height: 3px; /* 原 hover 為 5px */
         }
 
         .progress {
             height: 100%;
             background: #ff0000;
             width: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            transform: translateY(-50%) scale(0);
+            transition: transform 0.1s;
+            z-index: 3;
+        }
+
+        .progress-bar:hover .progress::after {
+            transform: translateY(-50%) scale(1);
         }
 
         .controls-row {
@@ -120,41 +147,66 @@
             transition: max-width 0.2s ease-in-out;
             opacity: 1;
         }
+        .volume-control::before {
+            content: "";
+            position: absolute;
+            top: -20px;      /* 擴大上下互動區 */
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            pointer-events: auto;
+        }
 
         .volume-control.active,
         .control-button.volume:hover + .volume-control,
         .volume-control:hover {
             max-width: 120px;
+            overflow: visible; 
         }
 
         .volume-slider {
-            width: 80px;  /* 固定寬度 */
-            margin: 0 8px;
+            width: 80px;
+            height: 3px;
             -webkit-appearance: none;
             appearance: none;
             background: rgba(255, 255, 255, 0.3);
             outline: none;
-            border-radius: 2px;
+            border-radius: 1.5px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0 8px;
+            position: relative;
+        }
+
+        .volume-slider-label {
+            padding: 8px 0; /* 擴大可點擊區域 */
+            margin: 0 -8px;  /* 負邊距，擴大可點擊區域 */
+            display: flex;
+            align-items: center;
             cursor: pointer;
         }
 
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
             width: 12px;
             height: 12px;
-            background: white;
+            background: #fff;
             border-radius: 50%;
             cursor: pointer;
+            margin-top: -4.5px;
         }
 
         .volume-slider::-moz-range-thumb {
             width: 12px;
             height: 12px;
-            background: white;
+            background: #fff;
             border-radius: 50%;
             cursor: pointer;
             border: none;
+        }
+
+        .volume-slider:hover {
+            height: 5px;
         }
 
         .controls-right {
@@ -228,6 +280,15 @@
             justify-content: center;
         }
 
+        .control-button.fullscreen {
+          width: 56px;
+          height: 56px;
+        }
+
+        .control-button.fullscreen .material-icons {
+          font-size: 40px;
+        }
+
         .control-button .material-icons {
             font-size: 28px;
         }
@@ -237,6 +298,10 @@
             font-size: 14px;
             font-family: "Roboto", sans-serif;
             margin: 0 8px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         video {
@@ -256,6 +321,14 @@
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 12px;
+        }
+
+        button,
+        .control-button {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
         }
     </style>
 </head>
@@ -285,7 +358,10 @@
                             <span class="material-icons">volume_up</span>
                         </button>
                         <div class="volume-control">
-                            <input type="range" class="volume-slider" min="0" max="100" value="100">
+                            <!-- 將 input 用 label 包覆，不改變視覺效果，但擴大可點擊範圍 -->
+                            <label class="volume-slider-label">
+                                <input type="range" class="volume-slider" min="0" max="100" value="100">
+                            </label>
                         </div>
                         <div class="time-display">
                             <span class="current-time">0:00</span>
@@ -389,6 +465,12 @@
             }
         }
 
+        document.addEventListener('fullscreenchange', () => {
+            const icon = fullscreenBtn.querySelector('.material-icons');
+            // 若全螢幕則顯示 fullscreen_exit，否則顯示 fullscreen
+            icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
+        });
+
         function updateVolumeIcon(value) {
             const icon = volumeBtn.querySelector('.material-icons');
             if (value == 0) {
@@ -445,6 +527,38 @@
                 settingsMenu.classList.remove('active');
             }
         });
+
+        // 原先取得 volumeSliderLabel 並監聽 mousedown 事件的部分已移除
+        // const volumeSliderLabel = document.querySelector('.volume-slider-label');
+
+        let draggingVolume = false;
+        let volumeRect = null;
+
+        // 改用 volumeControl 監聽 mousedown，讓整個控制區都能拖動滑桿
+        volumeControl.addEventListener('mousedown', (e) => {
+            draggingVolume = true;
+            volumeRect = volumeControl.getBoundingClientRect();
+            updateVolumeFromEvent(e, volumeRect);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggingVolume) {
+                updateVolumeFromEvent(e, volumeRect);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            draggingVolume = false;
+        });
+
+        function updateVolumeFromEvent(e, rect) {
+            let ratio = (e.clientX - rect.left) / rect.width;
+            ratio = Math.max(0, Math.min(1, ratio));
+            const newVal = ratio * 100;
+            volumeSlider.value = newVal;
+            video.volume = newVal / 100;
+            updateVolumeIcon(newVal);
+        }
     </script>
 </body>
 </html>
