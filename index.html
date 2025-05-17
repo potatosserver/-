@@ -426,30 +426,34 @@
 
         /* 新增：速度選單 header 樣式 */
         .settings-submenu.speed-menu {
+            width: 100%; /* 撐滿父容器 */
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
             transition: transform 0.3s ease;
             transform: translateX(0);
         }
         .speed-header {
             display: flex;
             align-items: center;
-            padding: 8px 16px;
+            padding: 8px 0; /* 移除左右內距 */
             border-bottom: 1px solid #383838;
         }
-        .speed-back {
-            padding: 8px;
-            cursor: pointer;
-        }
-        .speed-title {
-            flex: 1;
-            text-align: center;
-            font-size: 16px;
-            color: white;
-        }
         .speed-options {
-            /* 原有速度選項區域，可依需求調整 */
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
         }
         .settings-submenu.speed-menu.back {
             transform: translateX(-100%);
+        }
+
+        /* 新增：全螢幕模式下調整控制欄排版與大小 */
+        .video-wrapper:fullscreen .custom-controls,
+        .video-wrapper:-webkit-full-screen .custom-controls,
+        .video-wrapper:-moz-full-screen .custom-controls {
+            padding: 24px 32px !important;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -633,15 +637,14 @@
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                video.requestFullscreen();
+                // 修改為讓整個包裹控制欄的容器進入全螢幕
+                videoWrapper.requestFullscreen();
             } else {
                 document.exitFullscreen();
             }
         }
-
         document.addEventListener('fullscreenchange', () => {
             const icon = fullscreenBtn.querySelector('.material-icons');
-            // 若全螢幕則顯示 fullscreen_exit，否則顯示 fullscreen
             icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
         });
 
