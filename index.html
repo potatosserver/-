@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>播放影片</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #0f0f0f;
+            font-family: "YouTube Noto", Roboto, Arial, sans-serif;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 56px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .youtube-logo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #0f0f0f;
+        }
+
+        .youtube-logo img {
+            height: 20px;
+            content: url("https://www.youtube.com/img/desktop/supported_browsers/yt_logo_rgb_light.png");
+        }
+
+        .youtube-logo span {
+            font-size: 20px;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        .video-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 0;
+            box-shadow: none;
+            margin-top: 76px; /* 調整主要內容區域的上邊距 */
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background-color: black;
+            border-radius: 0;
+        }
+
+        .custom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .video-wrapper:hover .custom-controls {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: #ff0000;
+            width: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .controls-left {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .volume-control {
+            position: absolute;
+            left: 0;
+            bottom: -48px;
+            background: rgba(28, 28, 28, 0.9);
+            border-radius: 4px;
+            padding: 8px;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            visibility: hidden;
+            z-index: -1;
+            width: 120px;
+        }
+
+        .volume-control.active,
+        .control-button.volume:hover + .volume-control,
+        .volume-control:hover {
+            transform: translateY(0);
+            visibility: visible;
+            z-index: 1;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .settings-menu {
+            position: absolute;
+            right: 48px;
+            bottom: 60px;
+            background: rgba(28, 28, 28, 0.9);
+            border-radius: 4px;
+            padding: 8px 0;
+            display: none;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .settings-item {
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-submenu {
+            position: absolute;
+            right: 100%;
+            top: 0;
+            background: rgba(28, 28, 28, 0.9);
+            border-radius: 4px;
+            padding: 8px 0;
+            display: none;
+            width: 200px;
+        }
+
+        .settings-item.active .settings-submenu {
+            display: block;
+        }
+
+        .speed-option, .quality-option {
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .speed-option.active, .quality-option.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-button .material-icons {
+            font-size: 28px;
+        }
+
+        .time-display {
+            color: white;
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+            margin: 0 8px;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-info {
+            padding: 20px 0;
+            text-align: left;
+        }
+
+        .video-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="youtube-logo">
+            <img src="https://www.youtube.com/img/desktop/supported_browsers/yt_logo_rgb_light.png" alt="YouTube Logo">
+
+        </a>
+    </header>
+    <div class="video-container">
+        <div class="video-wrapper">
+            <video>
+                <source src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
+                您的瀏覽器不支援 HTML5 影片播放。
+            </video>
+            <div class="custom-controls">
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <div class="controls-row">
+                    <div class="controls-left">
+                        <button class="control-button play-pause">
+                            <span class="material-icons">play_arrow</span>
+                        </button>
+                        <div class="time-display">
+                            <span class="current-time">0:00</span>
+                            <span>/</span>
+                            <span class="duration">0:00</span>
+                        </div>
+                        <button class="control-button volume">
+                            <span class="material-icons">volume_up</span>
+                        </button>
+                        <div class="volume-control">
+                            <input type="range" class="volume-slider" min="0" max="100" value="100">
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <div class="settings-menu">
+                            <div class="settings-item" data-menu="speed">
+                                <span class="material-icons">speed</span>
+                                播放速度
+                                <div class="settings-submenu speed-menu">
+                                    <div class="speed-option" data-speed="0.25">0.25x</div>
+                                    <div class="speed-option" data-speed="0.5">0.5x</div>
+                                    <div class="speed-option" data-speed="1" class="active">正常</div>
+                                    <div class="speed-option" data-speed="1.5">1.5x</div>
+                                    <div class="speed-option" data-speed="2">2x</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="control-button settings">
+                            <span class="material-icons">settings</span>
+                        </button>
+                        <button class="control-button fullscreen">
+                            <span class="material-icons">fullscreen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="video-info">
+            <div class="video-title">專題製作成果展示</div>
+        </div>
+    </div>
+    <script>
+        const video = document.querySelector('video');
+        const playPauseBtn = document.querySelector('.play-pause');
+        const progress = document.querySelector('.progress');
+        const progressBar = document.querySelector('.progress-bar');
+        const currentTime = document.querySelector('.current-time');
+        const duration = document.querySelector('.duration');
+        const fullscreenBtn = document.querySelector('.fullscreen');
+        const volumeBtn = document.querySelector('.volume');
+        const volumeControl = document.querySelector('.volume-control');
+        const volumeSlider = document.querySelector('.volume-slider');
+        const settingsBtn = document.querySelector('.settings');
+        const settingsMenu = document.querySelector('.settings-menu');
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        video.addEventListener('timeupdate', updateProgress);
+        progressBar.addEventListener('click', seek);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        volumeBtn.addEventListener('click', () => {
+            volumeControl.classList.toggle('active');
+            settingsMenu.classList.remove('active');
+        });
+        volumeSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            video.volume = value / 100;
+            updateVolumeIcon(value);
+        });
+        settingsBtn.addEventListener('click', () => {
+            settingsMenu.classList.toggle('active');
+            volumeControl.classList.remove('active');
+        });
+
+        function togglePlay() {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.querySelector('.material-icons').textContent = 'pause';
+            } else {
+                video.pause();
+                playPauseBtn.querySelector('.material-icons').textContent = 'play_arrow';
+            }
+        }
+
+        function updateProgress() {
+            const percent = (video.currentTime / video.duration) * 100;
+            progress.style.width = `${percent}%`;
+            currentTime.textContent = formatTime(video.currentTime);
+            duration.textContent = formatTime(video.duration);
+        }
+
+        function seek(e) {
+            const percent = e.offsetX / progressBar.offsetWidth;
+            video.currentTime = percent * video.duration;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function updateVolumeIcon(value) {
+            const icon = volumeBtn.querySelector('.material-icons');
+            if (value == 0) {
+                icon.textContent = 'volume_off';
+            } else if (value < 50) {
+                icon.textContent = 'volume_down';
+            } else {
+                icon.textContent = 'volume_up';
+            }
+        }
+
+        // 音量控制
+        volumeBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            updateVolumeIcon(video.muted ? 0 : volumeSlider.value);
+        });
+
+        // 設定選單功能
+        const speedOptions = document.querySelectorAll('.speed-option');
+        const settingsItems = document.querySelectorAll('.settings-item');
+
+        settingsItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const menu = item.dataset.menu;
+                settingsItems.forEach(i => {
+                    if (i !== item) {
+                        i.classList.remove('active');
+                    }
+                });
+                item.classList.toggle('active');
+            });
+        });
+
+        speedOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const speed = parseFloat(option.dataset.speed);
+                video.playbackRate = speed;
+                speedOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+
+        // 點擊外部關閉選單
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.settings-menu')) {
+                settingsItems.forEach(item => item.classList.remove('active'));
+            }
+            if (!e.target.closest('.controls-left')) {
+                volumeControl.classList.remove('active');
+            }
+            if (!e.target.closest('.controls-right')) {
+                settingsMenu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
