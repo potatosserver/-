@@ -108,34 +108,28 @@
             position: relative;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 8px;  /* 調整間距 */
         }
 
         .volume-control {
-            position: absolute;
-            left: 0;
-            bottom: -48px;
-            background: rgba(28, 28, 28, 0.9);
-            border-radius: 4px;
-            padding: 8px;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-            visibility: hidden;
-            z-index: -1;
-            width: 120px;
+            position: relative;  /* 改為相對定位 */
+            display: flex;
+            align-items: center;
+            max-width: 0;
+            overflow: hidden;
+            transition: max-width 0.2s ease-in-out;
+            opacity: 1;
         }
 
         .volume-control.active,
         .control-button.volume:hover + .volume-control,
         .volume-control:hover {
-            transform: translateY(0);
-            visibility: visible;
-            z-index: 1;
+            max-width: 120px;
         }
 
         .volume-slider {
-            width: 100%;
-            height: 4px;
+            width: 80px;  /* 固定寬度 */
+            margin: 0 8px;
             -webkit-appearance: none;
             appearance: none;
             background: rgba(255, 255, 255, 0.3);
@@ -287,16 +281,16 @@
                         <button class="control-button play-pause">
                             <span class="material-icons">play_arrow</span>
                         </button>
-                        <div class="time-display">
-                            <span class="current-time">0:00</span>
-                            <span>/</span>
-                            <span class="duration">0:00</span>
-                        </div>
                         <button class="control-button volume">
                             <span class="material-icons">volume_up</span>
                         </button>
                         <div class="volume-control">
                             <input type="range" class="volume-slider" min="0" max="100" value="100">
+                        </div>
+                        <div class="time-display">
+                            <span class="current-time">0:00</span>
+                            <span>/</span>
+                            <span class="duration">0:00</span>
                         </div>
                     </div>
                     <div class="controls-right">
