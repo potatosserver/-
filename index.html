@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>播放影片</title>
+    <link rel="preload" as="video" href="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
@@ -506,7 +507,7 @@
     </header>
     <div class="video-container">
         <div class="video-wrapper">
-            <video autoplay muted preload="auto">
+            <video autoplay muted preload="auto" poster="https://potatosserver.github.io/independent_study/poster.jpg">
                 <source src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
                 您的瀏覽器不支援 HTML5 影片播放。
             </video>
