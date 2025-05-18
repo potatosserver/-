@@ -50,16 +50,17 @@
 
         .video-container {
             max-width: 1280px;
+            max-height: calc(100vh - 156px); /* 新增：限制最大高度為視窗高度減去頁首和標題空間 */
             margin: 0 auto;
             background-color: #ffffff;
             border-radius: 0;
             box-shadow: none;
-            margin-top: 76px; /* 調整主要內容區域的上邊距 */
+            margin-top: 76px;
         }
 
         .video-wrapper {
             position: relative;
-            padding-bottom: 56.25%;
+            padding-bottom: 45%; /* 修改：從 56.25% 改為 45%，降低高度 */
             height: 0;
             overflow: hidden;
             background-color: black;
@@ -500,7 +501,7 @@
     </header>
     <div class="video-container">
         <div class="video-wrapper">
-            <video autoplay muted>
+            <video autoplay muted preload="auto">
                 <source src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
                 您的瀏覽器不支援 HTML5 影片播放。
             </video>
@@ -578,7 +579,7 @@
         </div>
     </div>
     <!-- 新增：隱藏的影片元素，用於生成預覽縮圖 -->
-    <video id="preview-video" src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" preload="metadata" muted style="display: none;"></video>
+    <video id="preview-video" src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" preload="auto" muted style="display: none;"></video>
     <script>
         const video = document.querySelector('video');
         const playPauseBtn = document.querySelector('.play-pause');
