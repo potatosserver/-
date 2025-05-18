@@ -50,21 +50,24 @@
 
         .video-container {
             max-width: 1280px;
-            max-height: calc(100vh - 156px); /* 新增：限制最大高度為視窗高度減去頁首和標題空間 */
+            max-height: calc(100vh - 156px);
             margin: 0 auto;
             background-color: #ffffff;
             border-radius: 0;
             box-shadow: none;
-            margin-top: 76px;
+            margin-top: 56px;
+            position: relative; /* 新增 */
         }
 
         .video-wrapper {
             position: relative;
-            padding-bottom: 45%; /* 修改：從 56.25% 改為 45%，降低高度 */
-            height: 0;
+            padding-bottom: 0; /* 移除固定比例 */
+            height: auto; /* 改為自動高度 */
+            max-height: calc(100vh - 156px); /* 設定最大高度 */
             overflow: hidden;
             background-color: black;
             border-radius: 0;
+            aspect-ratio: 16 / 9; /* 新增: 保持 16:9 比例 */
         }
 
         .custom-controls {
@@ -826,6 +829,28 @@ function showOverlay(action) {
                 speedSubmenu.classList.remove('back');
             }, 300); // 與 CSS transition 時間同步
         });
+
+        // 新增：動態調整影片容器高度
+        function adjustVideoHeight() {
+            const container = document.querySelector('.video-container');
+            const wrapper = document.querySelector('.video-wrapper');
+            const windowHeight = window.innerHeight;
+            const headerHeight = 56;
+            const titleHeight = 100;
+            const maxHeight = windowHeight - headerHeight - titleHeight;
+            
+            // 計算16:9比例的寬度對應高度
+            const containerWidth = container.offsetWidth;
+            const heightByRatio = containerWidth * (9/16);
+            
+            // 使用較小的值作為實際高度
+            const finalHeight = Math.min(maxHeight, heightByRatio);
+            wrapper.style.height = `${finalHeight}px`;
+        }
+
+        // 頁面載入和視窗大小改變時調整高度
+        window.addEventListener('load', adjustVideoHeight);
+        window.addEventListener('resize', adjustVideoHeight);
     </script>
 </body>
 </html>
