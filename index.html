@@ -507,7 +507,8 @@
     </header>
     <div class="video-container">
         <div class="video-wrapper">
-            <video autoplay muted preload="auto" poster="https://potatosserver.github.io/independent_study/poster.jpg">
+            <!-- 修改：移除 muted 屬性 -->
+            <video autoplay preload="auto" poster="https://potatosserver.github.io/independent_study/poster.jpg">
                 <source src="https://potatosserver.github.io/independent_study/%E5%B0%88%E9%A1%8C%E8%A3%BD%E4%BD%9C.mp4" type="video/mp4">
                 您的瀏覽器不支援 HTML5 影片播放。
             </video>
@@ -643,6 +644,7 @@
 
         function togglePlay() {
             if (video.paused) {
+                video.muted = false; // 確保啟動播放時解除靜音
                 video.play();
                 playPauseBtn.querySelector('.material-icons').textContent = 'pause';
                 showOverlay('pause'); // 顯示暫停播放動畫 (目前影片播放中，應顯示 pause icon)
