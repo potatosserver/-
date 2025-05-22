@@ -859,6 +859,20 @@ function showOverlay(action) {
 	video.play().catch(e => console.log('Autoplay failed:', e));
 });
         window.addEventListener('resize', adjustVideoHeight);
+
+let controlsTimeout;
+const customControls = document.querySelector('.custom-controls');
+
+videoWrapper.addEventListener('mousemove', () => {
+    // 顯示控制欄
+    customControls.style.opacity = '1';
+    // 清除先前計時器
+    clearTimeout(controlsTimeout);
+    // 過2秒後自動隱藏控制欄
+    controlsTimeout = setTimeout(() => {
+        customControls.style.opacity = '0';
+    }, 2000);
+});
     </script>
 </body>
 </html>
