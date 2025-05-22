@@ -854,7 +854,10 @@ function showOverlay(action) {
         }
 
         // 頁面載入和視窗大小改變時調整高度
-        window.addEventListener('load', adjustVideoHeight);
+        window.addEventListener('load', () => {
+	adjustVideoHeight();
+	video.play().catch(e => console.log('Autoplay failed:', e));
+});
         window.addEventListener('resize', adjustVideoHeight);
     </script>
 </body>
